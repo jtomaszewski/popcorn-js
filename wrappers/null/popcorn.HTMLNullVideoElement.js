@@ -41,7 +41,7 @@
       video.ended();
     }
     if( video.currentTime < 0 ) {
-       video.pause(0);   
+       video.pause(0);
     }
   }
 
@@ -431,10 +431,10 @@
           setMuted( self._util.isAttributeSet( aValue ) );
         }
       },
-      
+
       playbackRate: {
         get: function() {
-          return player.playbackRate;   
+          return player.playbackRate;
         },
         set: function( aValue ) {
           player.playbackRate = aValue;
@@ -451,6 +451,7 @@
 
     self._canPlaySrc = Popcorn.HTMLNullVideoElement._canPlaySrc;
     self.canPlayType = Popcorn.HTMLNullVideoElement.canPlayType;
+    self.destroy = destroyPlayer;
 
     return self;
   }

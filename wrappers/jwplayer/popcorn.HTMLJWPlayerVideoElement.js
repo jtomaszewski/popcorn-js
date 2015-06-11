@@ -561,6 +561,7 @@
 
     self._canPlaySrc = Popcorn.HTMLJWPlayerVideoElement._canPlaySrc;
     self.canPlayType = Popcorn.HTMLJWPlayerVideoElement.canPlayType;
+    self.destroy = destroyPlayer;
 
     return self;
   }

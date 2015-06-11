@@ -604,6 +604,7 @@
 
     self._canPlaySrc = Popcorn.HTMLVimeoVideoElement._canPlaySrc;
     self.canPlayType = Popcorn.HTMLVimeoVideoElement.canPlayType;
+    self.destroy = destroyPlayer;
 
     return self;
   }

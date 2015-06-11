@@ -739,6 +739,7 @@
 
     self._canPlaySrc = Popcorn.HTMLYouTubeVideoElement._canPlaySrc;
     self.canPlayType = Popcorn.HTMLYouTubeVideoElement.canPlayType;
+    self.destroy = destroyPlayer;
 
     return self;
   }

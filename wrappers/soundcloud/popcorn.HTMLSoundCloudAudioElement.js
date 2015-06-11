@@ -682,6 +682,7 @@
 
     self._canPlaySrc = Popcorn.HTMLSoundCloudAudioElement._canPlaySrc;
     self.canPlayType = Popcorn.HTMLSoundCloudAudioElement.canPlayType;
+    self.destroy = destroyPlayer;
 
     return self;
   }

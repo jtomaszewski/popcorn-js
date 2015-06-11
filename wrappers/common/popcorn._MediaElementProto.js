@@ -122,6 +122,7 @@
     };
 
     protoElement.load = Popcorn.nop;
+    protoElement.destroy = Popcorn.nop;
 
     protoElement.canPlayType = function( url ) {
       return "";
@@ -160,7 +161,7 @@
         },
         configurable: true
       },
-      
+
       // We really can't do much more than "auto" with most of these.
       preload: {
         get: function() {
