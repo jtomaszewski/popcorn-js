@@ -117,9 +117,51 @@
 
       var onMuted = function() {
         if ( player.isMuted() ) {
-          // force an initial play on the video, to remove autostart on initial seekTo.
-          addYouTubeEvent( "play", onFirstPlay );
-          player.playVideo();
+          if (impl.autoplay) {
+            // If autoplay is enabled,
+            // force an initial play on the video, to remove autostart on initial seekTo.
+            function onFirstPause() {
+              removeYouTubeEvent( "pause", onFirstPause );
+              if ( player.getCurrentTime() > 0 ) {
+                setTimeout( onFirstPause, 0 );
+                return;
+              }
+
+              if( impl.autoplay || !impl.paused ) {
+                addYouTubeEvent( "play", onReady );
+                player.playVideo();
+              } else {
+                onReady();
+              }
+            }
+
+            // This function needs duration and first play to be ready.
+            function onFirstPlay() {
+              removeYouTubeEvent( "play", onFirstPlay );
+              if ( player.getCurrentTime() === 0 ) {
+                setTimeout( onFirstPlay, 0 );
+                return;
+              }
+              addYouTubeEvent( "pause", onFirstPause );
+              player.seekTo( 0 );
+              player.pauseVideo();
+            }
+
+            addYouTubeEvent( "play", onFirstPlay );
+            player.playVideo();
+
+          } else {
+            // If autoplay is disabled,
+            // let's just bind to the first "play" event,
+            // but don't trigger it automatically.
+            function onFirstPlay() {
+              removeYouTubeEvent( "play", onFirstPlay );
+              onReady();
+              onPlay();
+            }
+
+            addYouTubeEvent( "play", onFirstPlay );
+          }
         } else {
           setTimeout( onMuted, 0 );
         }
@@ -215,33 +257,6 @@
       // We can't easily determine canplaythrough, but will send anyway.
       impl.readyState = self.HAVE_ENOUGH_DATA;
       self.dispatchEvent( "canplaythrough" );
-    }
-
-    function onFirstPause() {
-      removeYouTubeEvent( "pause", onFirstPause );
-      if ( player.getCurrentTime() > 0 ) {
-        setTimeout( onFirstPause, 0 );
-        return;
-      }
-
-      if( impl.autoplay || !impl.paused ) {
-        addYouTubeEvent( "play", onReady );
-        player.playVideo();
-      } else {
-        onReady();
-      }
-    }
-
-    // This function needs duration and first play to be ready.
-    function onFirstPlay() {
-      removeYouTubeEvent( "play", onFirstPlay );
-      if ( player.getCurrentTime() === 0 ) {
-        setTimeout( onFirstPlay, 0 );
-        return;
-      }
-      addYouTubeEvent( "pause", onFirstPause );
-      player.seekTo( 0 );
-      player.pauseVideo();
     }
 
     function addYouTubeEvent( event, listener ) {

@@ -155,38 +155,51 @@
       player.getDuration( updateDuration );
     }
 
-    // When the player widget is ready, kick-off a play/pause
-    // in order to get the data loading.  We'll wait on loadedProgress.
+    // When the player widget is ready, and autoplay is enabled,
+    // kick-off a play/pause in order to get the data loading.
+    // We'll wait on loadedProgress.
     // It's possible for the loadProgress to take time after play(), so
     // we don't call pause() right away, but wait on loadedProgress to be 1
     // before we do.
     function onPlayerReady( data ) {
+      if (impl.autoplay) {
+        // Turn down the volume and kick-off a play to force load
+        player.bind( SC.Widget.Events.PLAY_PROGRESS, function( data ) {
+          // Turn down the volume.
+          // Loading has to be kicked off before volume can be changed.
+          player.setVolume( 0 );
+          // Wait for both flash and HTML5 to play something.
+          if( data.currentPosition > 0 ) {
+            player.unbind( SC.Widget.Events.PLAY_PROGRESS );
 
-      // Turn down the volume and kick-off a play to force load
-      player.bind( SC.Widget.Events.PLAY_PROGRESS, function( data ) {
-        // Turn down the volume.
-        // Loading has to be kicked off before volume can be changed.
-        player.setVolume( 0 );
-        // Wait for both flash and HTML5 to play something.
-        if( data.currentPosition > 0 ) {
-          player.unbind( SC.Widget.Events.PLAY_PROGRESS );
+            player.bind( SC.Widget.Events.PAUSE, function() {
+              player.unbind( SC.Widget.Events.PAUSE );
 
-          player.bind( SC.Widget.Events.PAUSE, function() {
-            player.unbind( SC.Widget.Events.PAUSE );
-
-            // Play/Pause cycle is done, restore volume and continue loading.
-            player.setVolume( 1 );
-            player.bind( SC.Widget.Events.SEEK, function() {
-              player.unbind( SC.Widget.Events.SEEK );
-              onLoaded();
+              // Play/Pause cycle is done, restore volume and continue loading.
+              player.setVolume( 1 );
+              player.bind( SC.Widget.Events.SEEK, function() {
+                player.unbind( SC.Widget.Events.SEEK );
+                onLoaded();
+              });
+              // Re seek back to 0, then we're back to default, loaded, and ready to go.
+              player.seekTo( 0 );
             });
-            // Re seek back to 0, then we're back to default, loaded, and ready to go.
-            player.seekTo( 0 );
+            player.pause();
+          }
+        });
+
+        player.play();
+      } else {
+        // Play/Pause cycle is done, restore volume and continue loading.
+        player.bind( SC.Widget.Events.PLAY_PROGRESS, function() {
+          player.unbind( SC.Widget.Events.PLAY_PROGRESS );
+          onLoaded();
+
+          onStateChange({
+            type: "play"
           });
-          player.pause();
-        }
-      });
-      player.play();
+        });
+      }
     }
 
     function updateDuration( newDuration ) {
